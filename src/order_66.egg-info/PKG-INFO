@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: order-66
+Version: 0.1.0
+Summary: A local host-based behavioral threat monitoring system.
+Requires-Python: >=3.13
