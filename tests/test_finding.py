@@ -1,4 +1,4 @@
-#Test that a finding can be created correctly
+# Test that a finding can be created correctly
 from datetime import datetime
 
 from order66.finding import Finding, Severity
