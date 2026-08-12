@@ -11,6 +11,7 @@ def test_detects_encoded_powershell_command():
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand SGVsbG8=",
         timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
     )
 
     finding = detect_encoded_powershell(event)
@@ -28,6 +29,7 @@ def test_ignores_normal_process():
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
     )
 
     finding = detect_encoded_powershell(event)

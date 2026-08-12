@@ -11,6 +11,7 @@ def test_engine_returns_finding_for_encoded_powershell():
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
     )
 
     engine = DetectionEngine()
@@ -28,6 +29,7 @@ def test_engine_returns_no_findings_for_normal_process():
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
     )
 
     engine = DetectionEngine()

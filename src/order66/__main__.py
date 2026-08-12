@@ -12,6 +12,7 @@ def main(args: list[str]) -> None:
             process_name="powershell.exe",
             command="powershell.exe -EncodedCommand demo",
             timestamp=datetime.now(),
+            creation_time=datetime(2026, 1, 1, 12, 0, 0),
         )
 
         def demo_collector() -> list[ProcessEvent]:
