@@ -5,7 +5,7 @@ from order66.finding import Severity
 from order66.monitor import Monitor
 
 
-def test_monitor_returns_findings_from_process_events():
+def test_monitor_collects_and_detects_processes():
     event = ProcessEvent(
         pid=1234,
         process_name="powershell.exe",
@@ -13,16 +13,19 @@ def test_monitor_returns_findings_from_process_events():
         timestamp=datetime.now(),
     )
 
-    monitor = Monitor()
+    def fake_collector() -> list[ProcessEvent]:
+        return [event]
 
-    findings = monitor.run_once([event])
+    monitor = Monitor(collector=fake_collector)
+
+    findings = monitor.run_once()
 
     assert len(findings) == 1
     assert findings[0].rule_id == "POWERSHELL-001"
     assert findings[0].severity == Severity.HIGH
 
 
-def test_monitor_returns_empty_list_when_no_processes_are_suspicious():
+def test_monitor_returns_empty_list_when_no_process_is_suspicious():
     event = ProcessEvent(
         pid=1234,
         process_name="notepad.exe",
@@ -30,8 +33,11 @@ def test_monitor_returns_empty_list_when_no_processes_are_suspicious():
         timestamp=datetime.now(),
     )
 
-    monitor = Monitor()
+    def fake_collector() -> list[ProcessEvent]:
+        return [event]
 
-    findings = monitor.run_once([event])
+    monitor = Monitor(collector=fake_collector)
+
+    findings = monitor.run_once()
 
     assert findings == []
