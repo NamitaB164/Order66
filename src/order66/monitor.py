@@ -1,10 +1,9 @@
 # collect info about the process running
 # match detection rules
 # Take collected events and run them through detection.
-from collections.abc import Callable
 from datetime import datetime
+
 from order66.detection.detection_engine import DetectionEngine
-from order66.events import ProcessEvent
 from order66.finding import Finding
 
 

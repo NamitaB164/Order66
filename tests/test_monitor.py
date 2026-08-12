@@ -43,6 +43,8 @@ def test_monitor_returns_empty_list_when_no_process_is_suspicious():
     findings = monitor.run_once()
 
     assert findings == []
+
+
 def test_monitor_does_not_analyze_same_process_twice():
     creation_time = datetime(2026, 1, 1, 12, 0, 0)
 
@@ -61,6 +63,8 @@ def test_monitor_does_not_analyze_same_process_twice():
 
     assert len(first_scan) == 1
     assert len(second_scan) == 0
+
+
 def test_monitor_treats_pid_reuse_as_new_process():
     first_creation_time = datetime(2026, 1, 1, 12, 0, 0)
     second_creation_time = datetime(2026, 1, 1, 12, 5, 0)

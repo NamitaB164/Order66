@@ -3,9 +3,13 @@ from datetime import datetime
 from order66.collectors.process_monitor import collect_processes
 from order66.events import ProcessEvent
 from order66.monitor import Monitor
+from order66.run_monitor import run_monitor
 
 
-def main(args: list[str]) -> None:
+def main(
+    args: list[str],
+    collector=collect_processes,
+) -> None:
     if "--demo" in args:
         event = ProcessEvent(
             pid=1234,
@@ -19,17 +23,32 @@ def main(args: list[str]) -> None:
             return [event]
 
         monitor = Monitor(collector=demo_collector)
+
+        print("ORDER 66 - Local Security Monitor")
+        print("----------------------------------")
+        print("Running demo detection...\n")
+
+        findings = monitor.run_once()
+
     else:
-        monitor = Monitor(collector=collect_processes)
+        monitor = Monitor(collector=collector)
 
-    print("ORDER 66 - Local Security Monitor")
-    print("----------------------------------")
-    print("Scanning running processes...\n")
+        print("ORDER 66 - Local Security Monitor")
+        print("----------------------------------")
 
-    findings = monitor.run_once()
+        if "--once" in args:
+            print("Scanning running processes...\n")
+            findings = run_monitor(
+                monitor,
+                iterations=1,
+                interval=0,
+            )
+        else:
+            print("Continuous monitoring started.\n")
+            findings = run_monitor(monitor)
 
     if not findings:
-        print("Scan complete. No suspicious activity detected.")
+        print("No suspicious activity detected.")
         return
 
     for finding in findings:

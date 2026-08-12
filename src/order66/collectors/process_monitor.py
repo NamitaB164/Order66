@@ -7,7 +7,7 @@ from order66.events import ProcessEvent
 
 def collect_processes() -> list[ProcessEvent]:
     events = []
-    # iterate over process and retrieve: pid, name and command line and process creation time.
+    # iterate over process and retrieve.
     for process in psutil.process_iter(["pid", "name", "cmdline", "create_time"]):
         try:
             info = process.info
@@ -16,11 +16,11 @@ def collect_processes() -> list[ProcessEvent]:
             creation_time = datetime.fromtimestamp(info["create_time"])
 
             event = ProcessEvent(
-            pid=info["pid"],
-            process_name=info["name"] or "unknown",
-            command=command,
-            timestamp=datetime.now(),
-            creation_time=creation_time,
+                pid=info["pid"],
+                process_name=info["name"] or "unknown",
+                command=command,
+                timestamp=datetime.now(),
+                creation_time=creation_time,
             )
 
             events.append(event)
