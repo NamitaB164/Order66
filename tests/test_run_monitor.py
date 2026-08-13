@@ -9,6 +9,7 @@ def test_run_monitor_runs_one_iteration():
     event = ProcessEvent(
         pid=1234,
         parent_pid=5678,
+        parent_process_name="WINWORD.EXE",
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -26,6 +27,7 @@ def test_run_monitor_returns_findings():
     event = ProcessEvent(
         pid=1234,
         parent_pid=5678,
+        parent_process_name="explorer.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),

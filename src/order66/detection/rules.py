@@ -76,3 +76,28 @@ def detect_execution_policy_manipulation(
         process=event.process_name,
         timestamp=event.timestamp,
     )
+
+
+def detect_suspicious_parent_child(event: ProcessEvent) -> Finding | None:
+    process_name = event.process_name.lower()
+
+    suspicious_children = {
+        "powershell.exe",
+        "pwsh.exe",
+        "cmd.exe",
+    }
+
+    suspicious_parents = {
+        "winword.exe",
+        "excel.exe",
+        "powerpnt.exe",
+        "outlook.exe",
+    }
+
+    if process_name not in suspicious_children:
+        return None
+
+    if event.parent_pid is None:
+        return None
+
+    return None

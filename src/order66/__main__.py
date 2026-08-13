@@ -14,6 +14,7 @@ def main(
         event = ProcessEvent(
             pid=1234,
             parent_pid=5678,
+            parent_process_name="explorer.exe",
             process_name="powershell.exe",
             command="powershell.exe -EncodedCommand demo",
             timestamp=datetime.now(),
