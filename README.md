@@ -20,7 +20,7 @@ Run the monitor once (scan running processes and exit):
 python -m order66 --once
 ```
 
-Run a short demo mode (uses a canned event):
+Run a short demo mode (uses a hardcoded event):
 
 ```powershell
 python -m order66 --demo
