@@ -20,3 +20,59 @@ def detect_encoded_powershell(event: ProcessEvent) -> Finding | None:
         process=event.process_name,
         timestamp=event.timestamp,
     )
+
+
+def detect_suspicious_powershell(event: ProcessEvent) -> Finding | None:
+    process_name = event.process_name.lower()
+    command = event.command.lower()
+
+    if process_name not in {"powershell.exe", "pwsh.exe"}:
+        return None
+
+    suspicious_options = {
+        "-noprofile",
+        "-nop",
+        "-noninteractive",
+        "-noni",
+        "-windowstyle hidden",
+        "-w hidden",
+    }
+
+    if not any(option in command for option in suspicious_options):
+        return None
+
+    return Finding(
+        rule_id="POWERSHELL-002",
+        severity=Severity.MEDIUM,
+        reason="PowerShell executed with suspicious options",
+        process=event.process_name,
+        timestamp=event.timestamp,
+    )
+
+
+def detect_execution_policy_manipulation(
+    event: ProcessEvent,
+) -> Finding | None:
+    process_name = event.process_name.lower()
+    command = event.command.lower()
+
+    if process_name not in {"powershell.exe", "pwsh.exe"}:
+        return None
+
+    suspicious_policies = {
+        "-executionpolicy bypass",
+        "-executionpolicy unrestricted",
+        "-ep bypass",
+        "-ep unrestricted",
+    }
+
+    if not any(policy in command for policy in suspicious_policies):
+        return None
+
+    return Finding(
+        rule_id="POWERSHELL-003",
+        severity=Severity.HIGH,
+        reason="PowerShell execution policy manipulation detected",
+        process=event.process_name,
+        timestamp=event.timestamp,
+    )
