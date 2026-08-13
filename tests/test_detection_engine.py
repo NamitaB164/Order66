@@ -43,3 +43,23 @@ def test_engine_returns_no_findings_for_normal_process():
     findings = engine.analyze(event)
 
     assert findings == []
+
+def test_engine_returns_finding_for_suspicious_execution_location():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        parent_process_name="explorer.exe",
+        process_name="something.exe",
+        process_path="C:\\Users\\Test\\AppData\\Local\\Temp\\something.exe",
+        command="something.exe",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    findings = DetectionEngine().analyze(event)
+
+    assert any(
+        finding.rule_id == "PROCESS-002"
+        for finding in findings
+    )
+

@@ -112,3 +112,30 @@ def detect_suspicious_parent_child(
         process=event.process_name,
         timestamp=event.timestamp,
     )
+
+def detect_suspicious_execution_location(
+    event: ProcessEvent,
+) -> Finding | None:
+    process_path = event.process_path
+
+    if process_path is None:
+        return None
+
+    suspicious_locations = {
+        "\\appdata\\local\\temp\\",
+        "\\appdata\\roaming\\",
+        "\\windows\\temp\\",
+    }
+
+    path = process_path.lower()
+
+    if not any(location in path for location in suspicious_locations):
+        return None
+
+    return Finding(
+        rule_id="PROCESS-002",
+        severity=Severity.MEDIUM,
+        reason="Process executed from a suspicious location",
+        process=event.process_name,
+        timestamp=event.timestamp,
+    )

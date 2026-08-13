@@ -6,6 +6,7 @@ from order66.detection.rules import (
     detect_execution_policy_manipulation,
     detect_suspicious_powershell,
     detect_suspicious_parent_child,
+    detect_suspicious_execution_location,
 )
 from order66.events import ProcessEvent
 from order66.finding import Severity
@@ -207,5 +208,58 @@ def test_ignores_normal_process_parent():
     )
 
     finding = detect_suspicious_parent_child(event)
+
+    assert finding is None
+
+def test_detects_suspicious_execution_location():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        parent_process_name="explorer.exe",
+        process_name="powershell.exe",
+        process_path="C:\\Users\\Test\\AppData\\Local\\Temp\\powershell.exe",
+        command="powershell.exe",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_execution_location(event)
+
+    assert finding is not None
+    assert finding.rule_id == "PROCESS-002"
+    assert finding.severity == Severity.MEDIUM
+    assert finding.process == "powershell.exe"
+
+# test a normal execution location
+def test_ignores_normal_execution_location():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        parent_process_name="explorer.exe",
+        process_name="powershell.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        command="powershell.exe",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_execution_location(event)
+
+    assert finding is None
+
+# test missing process path
+def test_ignores_process_with_no_execution_path():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        parent_process_name="explorer.exe",
+        process_name="powershell.exe",
+        process_path=None,
+        command="powershell.exe",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_execution_location(event)
 
     assert finding is None
