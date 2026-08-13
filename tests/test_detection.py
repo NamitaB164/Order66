@@ -5,6 +5,7 @@ from order66.detection.rules import (
     detect_encoded_powershell,
     detect_execution_policy_manipulation,
     detect_suspicious_powershell,
+    detect_suspicious_parent_child,
 )
 from order66.events import ProcessEvent
 from order66.finding import Severity
@@ -15,6 +16,7 @@ def test_detects_encoded_powershell_command():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand SGVsbG8=",
         timestamp=datetime.now(),
@@ -35,6 +37,7 @@ def test_detects_suspicious_powershell_options():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -NoProfile -WindowStyle Hidden",
         timestamp=datetime.now(),
@@ -53,6 +56,7 @@ def test_detects_execution_policy_bypass():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -ExecutionPolicy Bypass",
         timestamp=datetime.now(),
@@ -70,6 +74,7 @@ def test_ignores_normal_execution_policy():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -ExecutionPolicy RemoteSigned",
         timestamp=datetime.now(),
@@ -86,6 +91,7 @@ def test_detects_short_execution_policy_bypass():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="pwsh.exe",
         command="pwsh.exe -ep bypass",
         timestamp=datetime.now(),
@@ -103,6 +109,7 @@ def test_ignores_normal_powershell():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe Get-Process",
         timestamp=datetime.now(),
@@ -119,6 +126,7 @@ def test_ignores_normal_process():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -135,6 +143,7 @@ def test_engine_returns_finding_for_suspicious_powershell():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -NoProfile -WindowStyle Hidden",
         timestamp=datetime.now(),
@@ -144,3 +153,59 @@ def test_engine_returns_finding_for_suspicious_powershell():
     findings = DetectionEngine().analyze(event)
 
     assert any(finding.rule_id == "POWERSHELL-002" for finding in findings)
+
+
+def test_detects_suspicious_powershell_parent():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        process_name="powershell.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        parent_process_name="winword.exe",
+        command="powershell.exe -NoProfile",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_parent_child(event)
+
+    assert finding is not None
+    assert finding.rule_id == "PROCESS-001"
+    assert finding.severity == Severity.HIGH
+    assert "parent" in finding.reason.lower()
+
+
+# test a normal relationship
+def test_ignores_normal_powershell_parent():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        process_name="powershell.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        parent_process_name="explorer.exe",
+        command="powershell.exe Get-Process",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_parent_child(event)
+
+    assert finding is None
+
+
+# test that the rule doesn't accidentally flag unrelated processes
+def test_ignores_normal_process_parent():
+    event = ProcessEvent(
+        pid=1234,
+        parent_pid=5678,
+        process_name="notepad.exe",
+        process_path="C:\\Windows\\System32\\notepad.exe",
+        parent_process_name="explorer.exe",
+        command="notepad.exe",
+        timestamp=datetime.now(),
+        creation_time=datetime(2026, 1, 1, 12, 0, 0),
+    )
+
+    finding = detect_suspicious_parent_child(event)
+
+    assert finding is None

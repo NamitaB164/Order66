@@ -10,6 +10,7 @@ def test_monitor_collects_and_detects_processes():
         pid=1234,
         parent_pid=5678,
         parent_process_name="WINWORD.EXE",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
@@ -23,9 +24,12 @@ def test_monitor_collects_and_detects_processes():
 
     findings = monitor.run_once()
 
-    assert len(findings) == 1
-    assert findings[0].rule_id == "POWERSHELL-001"
-    assert findings[0].severity == Severity.HIGH
+    assert len(findings) == 2
+
+    rule_ids = {finding.rule_id for finding in findings}
+
+    assert "POWERSHELL-001" in rule_ids
+    assert "PROCESS-001" in rule_ids
 
 
 def test_monitor_returns_empty_list_when_no_process_is_suspicious():
@@ -33,6 +37,7 @@ def test_monitor_returns_empty_list_when_no_process_is_suspicious():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -56,6 +61,7 @@ def test_monitor_does_not_analyze_same_process_twice():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
@@ -79,6 +85,7 @@ def test_monitor_treats_pid_reuse_as_new_process():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand first",
         timestamp=datetime.now(),
@@ -89,6 +96,7 @@ def test_monitor_treats_pid_reuse_as_new_process():
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
+        process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand second",
         timestamp=datetime.now(),

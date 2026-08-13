@@ -78,26 +78,37 @@ def detect_execution_policy_manipulation(
     )
 
 
-def detect_suspicious_parent_child(event: ProcessEvent) -> Finding | None:
+def detect_suspicious_parent_child(
+    event: ProcessEvent,
+) -> Finding | None:
     process_name = event.process_name.lower()
+    parent_process_name = (
+        event.parent_process_name.lower() if event.parent_process_name else None
+    )
 
-    suspicious_children = {
+    # This rule currently focuses on PowerShell.
+    if process_name not in {"powershell.exe", "pwsh.exe"}:
+        return None
+
+    # We cannot determine whether the parent is suspicious.
+    if parent_process_name is None:
+        return None
+
+    normal_parents = {
+        "explorer.exe",
+        "cmd.exe",
         "powershell.exe",
         "pwsh.exe",
-        "cmd.exe",
+        "conhost.exe",
     }
 
-    suspicious_parents = {
-        "winword.exe",
-        "excel.exe",
-        "powerpnt.exe",
-        "outlook.exe",
-    }
-
-    if process_name not in suspicious_children:
+    if parent_process_name in normal_parents:
         return None
 
-    if event.parent_pid is None:
-        return None
-
-    return None
+    return Finding(
+        rule_id="PROCESS-001",
+        severity=Severity.HIGH,
+        reason="PowerShell spawned by a suspicious parent process",
+        process=event.process_name,
+        timestamp=event.timestamp,
+    )
