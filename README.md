@@ -1,7 +1,7 @@
 # Order66
 Local Host-Based Behavioral Threat Monitor
 
-Order66 is a small, easy-to-read prototype that watches running processes on a computer
+Order66 is a prototype that watches running processes on a computer
 and looks for simple, common signs of suspicious behavior. It collects basic process
 information, runs a few predefined detection rules, and records any findings to a JSON file.
 
