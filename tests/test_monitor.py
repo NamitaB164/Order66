@@ -8,6 +8,7 @@ from order66.monitor import Monitor
 def test_monitor_collects_and_detects_processes():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
@@ -29,6 +30,7 @@ def test_monitor_collects_and_detects_processes():
 def test_monitor_returns_empty_list_when_no_process_is_suspicious():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -50,6 +52,7 @@ def test_monitor_does_not_analyze_same_process_twice():
 
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
@@ -71,6 +74,7 @@ def test_monitor_treats_pid_reuse_as_new_process():
 
     first_event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand first",
         timestamp=datetime.now(),
@@ -79,6 +83,7 @@ def test_monitor_treats_pid_reuse_as_new_process():
 
     second_event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand second",
         timestamp=datetime.now(),

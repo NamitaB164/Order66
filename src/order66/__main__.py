@@ -13,6 +13,7 @@ def main(
     if "--demo" in args:
         event = ProcessEvent(
             pid=1234,
+            parent_pid=5678,
             process_name="powershell.exe",
             command="powershell.exe -EncodedCommand demo",
             timestamp=datetime.now(),

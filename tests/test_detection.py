@@ -13,6 +13,7 @@ from order66.finding import Severity
 def test_detects_encoded_powershell_command():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand SGVsbG8=",
         timestamp=datetime.now(),
@@ -31,6 +32,7 @@ def test_detects_encoded_powershell_command():
 def test_detects_suspicious_powershell_options():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -NoProfile -WindowStyle Hidden",
         timestamp=datetime.now(),
@@ -47,6 +49,7 @@ def test_detects_suspicious_powershell_options():
 def test_detects_execution_policy_bypass():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -ExecutionPolicy Bypass",
         timestamp=datetime.now(),
@@ -62,6 +65,7 @@ def test_detects_execution_policy_bypass():
 def test_ignores_normal_execution_policy():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -ExecutionPolicy RemoteSigned",
         timestamp=datetime.now(),
@@ -76,6 +80,7 @@ def test_ignores_normal_execution_policy():
 def test_detects_short_execution_policy_bypass():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="pwsh.exe",
         command="pwsh.exe -ep bypass",
         timestamp=datetime.now(),
@@ -91,6 +96,7 @@ def test_detects_short_execution_policy_bypass():
 def test_ignores_normal_powershell():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe Get-Process",
         timestamp=datetime.now(),
@@ -105,6 +111,7 @@ def test_ignores_normal_powershell():
 def test_ignores_normal_process():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -119,6 +126,7 @@ def test_ignores_normal_process():
 def test_engine_returns_finding_for_suspicious_powershell():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -NoProfile -WindowStyle Hidden",
         timestamp=datetime.now(),

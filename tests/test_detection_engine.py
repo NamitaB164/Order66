@@ -8,6 +8,7 @@ from order66.finding import Severity
 def test_engine_returns_finding_for_encoded_powershell():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
@@ -26,6 +27,7 @@ def test_engine_returns_finding_for_encoded_powershell():
 def test_engine_returns_no_findings_for_normal_process():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),

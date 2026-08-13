@@ -8,6 +8,7 @@ from order66.run_monitor import run_monitor
 def test_run_monitor_runs_one_iteration():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="notepad.exe",
         command="notepad.exe",
         timestamp=datetime.now(),
@@ -24,6 +25,7 @@ def test_run_monitor_runs_one_iteration():
 def test_run_monitor_returns_findings():
     event = ProcessEvent(
         pid=1234,
+        parent_pid=5678,
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),
