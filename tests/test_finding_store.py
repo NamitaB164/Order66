@@ -15,6 +15,7 @@ What happens if the file doesn't exist yet?
 
 Test 6
 What happens if there are no findings?"""
+
 from datetime import datetime
 
 from order66.finding import Finding, Severity
@@ -144,3 +145,21 @@ def test_empty_findings_file_returns_empty_list(tmp_path):
     findings = store.get_all()
 
     assert findings == []
+
+
+def test_invalid_json_returns_empty_list(tmp_path):
+    path = tmp_path / "findings.json"
+    path.write_text("this is not valid json", encoding="utf-8")
+
+    store = FindingStore(path)
+
+    assert store.get_all() == []
+
+
+def test_non_list_json_returns_empty_list(tmp_path):
+    path = tmp_path / "findings.json"
+    path.write_text('{"finding": "something"}', encoding="utf-8")
+
+    store = FindingStore(path)
+
+    assert store.get_all() == []

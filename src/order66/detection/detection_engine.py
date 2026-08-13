@@ -1,13 +1,15 @@
 from collections.abc import Callable
+
 from order66.detection.rules import (
     detect_encoded_powershell,
     detect_execution_policy_manipulation,
-    detect_suspicious_powershell,
-    detect_suspicious_parent_child,
     detect_suspicious_execution_location,
+    detect_suspicious_parent_child,
+    detect_suspicious_powershell,
 )
 from order66.events import ProcessEvent
 from order66.finding import Finding
+
 
 class DetectionEngine:
     def __init__(self) -> None:

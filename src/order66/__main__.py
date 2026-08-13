@@ -1,21 +1,45 @@
 from datetime import datetime
+from pathlib import Path
 
 from order66.collectors.process_monitor import collect_processes
 from order66.events import ProcessEvent
 from order66.monitor import Monitor
 from order66.run_monitor import run_monitor
+from order66.storage.finding_store import FindingStore
 
 
 def main(
     args: list[str],
     collector=collect_processes,
 ) -> None:
+    store = FindingStore(Path("findings.json"))
+    if "--history" in args:
+        findings = store.get_all()
+
+        print("ORDER 66 - Finding History")
+        print("--------------------------")
+
+        if not findings:
+            print("No findings recorded.")
+            return
+
+        for finding in findings:
+            print(f"[{finding['severity'].upper()}] {finding['rule_id']}")
+            print(f"  {finding['reason']}")
+            print(f"  Process: {finding['process']}")
+            print(f"  Time: {finding['timestamp']}")
+            print()
+
+        return
+
     if "--demo" in args:
         event = ProcessEvent(
             pid=1234,
             parent_pid=5678,
             parent_process_name="explorer.exe",
-            process_path="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            process_path=(
+                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            ),
             process_name="powershell.exe",
             command="powershell.exe -EncodedCommand demo",
             timestamp=datetime.now(),
@@ -25,7 +49,10 @@ def main(
         def demo_collector() -> list[ProcessEvent]:
             return [event]
 
-        monitor = Monitor(collector=demo_collector)
+        monitor = Monitor(
+            collector=demo_collector,
+            finding_store=store,
+        )
 
         print("ORDER 66 - Local Security Monitor")
         print("----------------------------------")
@@ -34,13 +61,17 @@ def main(
         findings = monitor.run_once()
 
     else:
-        monitor = Monitor(collector=collector)
+        monitor = Monitor(
+            collector=collector,
+            finding_store=store,
+        )
 
         print("ORDER 66 - Local Security Monitor")
         print("----------------------------------")
 
         if "--once" in args:
             print("Scanning running processes...\n")
+
             findings = run_monitor(
                 monitor,
                 iterations=1,
@@ -48,6 +79,7 @@ def main(
             )
         else:
             print("Continuous monitoring started.\n")
+
             findings = run_monitor(monitor)
 
     if not findings:

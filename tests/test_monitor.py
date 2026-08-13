@@ -1,8 +1,8 @@
 from datetime import datetime
-from order66.storage.finding_store import FindingStore
+
 from order66.events import ProcessEvent
-from order66.finding import Severity
 from order66.monitor import Monitor
+from order66.storage.finding_store import FindingStore
 
 
 def test_monitor_collects_and_detects_processes():
@@ -110,14 +110,13 @@ def test_monitor_treats_pid_reuse_as_new_process():
 
     assert len(findings) == 2
 
+
 def test_monitor_stores_findings(tmp_path):
     event = ProcessEvent(
         pid=1234,
         parent_pid=5678,
         parent_process_name="explorer.exe",
-        process_path=(
-            "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
-        ),
+        process_path=("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
         process_name="powershell.exe",
         command="powershell.exe -EncodedCommand abc123",
         timestamp=datetime.now(),

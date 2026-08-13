@@ -1,8 +1,9 @@
 # Take Finding objects and persist them as JSON.
+
 import json
 from pathlib import Path
 
-from order66.finding import Finding, Severity
+from order66.finding import Finding
 
 
 class FindingStore:
@@ -31,9 +32,17 @@ class FindingStore:
         if not self.path.exists():
             return []
 
-        content = self.path.read_text(encoding="utf-8")
+        content = self.path.read_text(encoding="utf-8").strip()
 
         if not content:
             return []
 
-        return json.loads(content)
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            return []
+
+        if not isinstance(data, list):
+            return []
+
+        return data

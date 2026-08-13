@@ -113,6 +113,7 @@ def detect_suspicious_parent_child(
         timestamp=event.timestamp,
     )
 
+
 def detect_suspicious_execution_location(
     event: ProcessEvent,
 ) -> Finding | None:

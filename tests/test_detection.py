@@ -4,9 +4,9 @@ from order66.detection.detection_engine import DetectionEngine
 from order66.detection.rules import (
     detect_encoded_powershell,
     detect_execution_policy_manipulation,
-    detect_suspicious_powershell,
-    detect_suspicious_parent_child,
     detect_suspicious_execution_location,
+    detect_suspicious_parent_child,
+    detect_suspicious_powershell,
 )
 from order66.events import ProcessEvent
 from order66.finding import Severity
@@ -211,6 +211,7 @@ def test_ignores_normal_process_parent():
 
     assert finding is None
 
+
 def test_detects_suspicious_execution_location():
     event = ProcessEvent(
         pid=1234,
@@ -230,6 +231,7 @@ def test_detects_suspicious_execution_location():
     assert finding.severity == Severity.MEDIUM
     assert finding.process == "powershell.exe"
 
+
 # test a normal execution location
 def test_ignores_normal_execution_location():
     event = ProcessEvent(
@@ -246,6 +248,7 @@ def test_ignores_normal_execution_location():
     finding = detect_suspicious_execution_location(event)
 
     assert finding is None
+
 
 # test missing process path
 def test_ignores_process_with_no_execution_path():

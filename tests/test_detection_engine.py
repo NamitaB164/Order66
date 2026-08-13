@@ -44,6 +44,7 @@ def test_engine_returns_no_findings_for_normal_process():
 
     assert findings == []
 
+
 def test_engine_returns_finding_for_suspicious_execution_location():
     event = ProcessEvent(
         pid=1234,
@@ -58,8 +59,4 @@ def test_engine_returns_finding_for_suspicious_execution_location():
 
     findings = DetectionEngine().analyze(event)
 
-    assert any(
-        finding.rule_id == "PROCESS-002"
-        for finding in findings
-    )
-
+    assert any(finding.rule_id == "PROCESS-002" for finding in findings)
