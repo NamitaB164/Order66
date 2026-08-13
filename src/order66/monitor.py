@@ -1,16 +1,23 @@
 # collect info about the process running
 # match detection rules
 # Take collected events and run them through detection.
+
 from datetime import datetime
 
 from order66.detection.detection_engine import DetectionEngine
 from order66.finding import Finding
+from order66.storage.finding_store import FindingStore
 
 
 class Monitor:
-    def __init__(self, collector) -> None:
+    def __init__(
+        self,
+        collector,
+        finding_store: FindingStore | None = None,
+    ) -> None:
         self.engine = DetectionEngine()
         self.collector = collector
+        self.finding_store = finding_store
         self.seen_processes: set[tuple[int, datetime]] = set()
 
     def run_once(self) -> list[Finding]:
@@ -26,5 +33,9 @@ class Monitor:
             self.seen_processes.add(identity)
 
             findings.extend(self.engine.analyze(event))
+
+        if self.finding_store is not None:
+            for finding in findings:
+                self.finding_store.save(finding)
 
         return findings
